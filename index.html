@@ -409,6 +409,7 @@
     </div>
     <div class="presets">
       <span>Try:</span>
+      <button class="chip" type="button" data-val="7">7</button>
       <button class="chip" type="button" data-val="102197">102197</button>
       <button class="chip" type="button" data-val="102199">102199</button>
       <button class="chip" type="button" data-val="999983">999983</button>
@@ -445,7 +446,8 @@
       return { isCandidate: false, verdict: "NOT PRIME", score: 0.01, asks: [] };
     }
 
-    if (nBig === 2n || nBig === 3n || nBig === 5n) {
+    // Include 7 as an axiomatic base generator prime alongside 2, 3, 5
+    if (nBig === 2n || nBig === 3n || nBig === 5n || nBig === 7n) {
       return {
         isCandidate: true,
         verdict: "AXIOMATIC BASE PRIME",
@@ -495,9 +497,10 @@
       sub += 0.05;
       const slotBonus = [0.03, 0.06, 0.09, 0.09, 0.08, 0.07, 0.05, 0.04];
       sub += slotBonus[slot];
-      sub += (nBig % 7n !== 0n) ? 0.06 : -0.28;
-      sub += (nBig % 11n !== 0n) ? 0.04 : -0.20;
-      sub += (nBig % 13n !== 0n) ? 0.03 : -0.16;
+      // Avoid self-modulus penalty if nBig equals the test modulus itself
+      sub += (nBig % 7n !== 0n || nBig === 7n) ? 0.06 : -0.28;
+      sub += (nBig % 11n !== 0n || nBig === 11n) ? 0.04 : -0.20;
+      sub += (nBig % 13n !== 0n || nBig === 13n) ? 0.03 : -0.16;
       if (counter % 10n !== 0n) sub += 0.02;
       if (mod9Adm) sub += 0.03;
       sub = Math.max(0.04, Math.min(0.94, sub));
@@ -652,7 +655,7 @@
   });
 
   const params = new URLSearchParams(window.location.search);
-  const initial = params.get("n") || "102197";
+  const initial = params.get("n") || "7";
   input.value = initial;
   render(initial);
 })();
